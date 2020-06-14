@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `jwt_compact` crate."><meta name="keywords" content="rust, rustlang, rust-lang, jwt_compact"><title>jwt_compact - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../jwt_compact/index.html'><div class='logo-container'><img src='../rust-logo.png' alt='logo'></div></a><p class='location'>Crate jwt_compact</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all jwt_compact's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'jwt_compact', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/jwt_compact/lib.rs.html#1-667' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>jwt_compact</a></span></h1><div class='docblock'><p>Minimalistic <a href="https://jwt.io/">JSON web token (JWT)</a> implementation with focus on type safety
+and secure cryptographic primitives.</p>
+<h1 id="design-choices" class="section-header"><a href="#design-choices">Design choices</a></h1>
+<ul>
+<li>JWT signature algorithms (i.e., cryptographic algorithms providing JWT integrity)
+are expressed via the <a href="trait.Algorithm.html"><code>Algorithm</code></a> trait, which uses fully typed keys and signatures.</li>
+<li><a href="https://tools.ietf.org/html/rfc7519#section-5">JWT header</a> is represented by the <a href="struct.Header.html"><code>Header</code></a> struct. Notably, <code>Header</code> does not
+expose the <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1"><code>alg</code> field</a>.
+Instead, <code>alg</code> is filled automatically during token creation, and is compared to the
+expected value during verification. (If you do not know the JWT signature algorithm during
+verification, you're doing something wrong.) This eliminates the possibility
+of <a href="https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/">algorithm switching attacks</a>.</li>
+</ul>
+<h1 id="additional-features" class="section-header"><a href="#additional-features">Additional features</a></h1>
+<ul>
+<li>The crate supports more compact <a href="https://tools.ietf.org/html/rfc7049">CBOR</a> encoding of the claims. The compactly encoded JWTs
+have <a href="https://tools.ietf.org/html/rfc7515#section-4.1.10"><code>cty</code> field</a> (content type) in their header set to <code>&quot;CBOR&quot;</code>.</li>
+<li>The crate supports <code>EdDSA</code> algorithm with the Ed25519 elliptic curve, and <code>ES256K</code> algorithm
+with the secp256k1 elliptic curve.</li>
+</ul>
+<h2 id="supported-algorithms" class="section-header"><a href="#supported-algorithms">Supported algorithms</a></h2><table><thead><tr><th>Algorithm(s)</th><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>HS256</code>, <code>HS384</code>, <code>HS512</code></td><td>-</td><td>Uses pure Rust <a href="https://docs.rs/sha2/"><code>sha2</code></a> crate</td></tr>
+<tr><td><code>EdDSA</code> (Ed25519)</td><td><a href="https://docs.rs/exonum-crypto/"><code>exonum-crypto</code></a></td><td><a href="https://download.libsodium.org/doc/"><code>libsodium</code></a> binding. Enabled by default</td></tr>
+<tr><td><code>EdDSA</code> (Ed25519)</td><td><a href="https://doc.dalek.rs/ed25519_dalek/"><code>ed25519-dalek</code></a></td><td>Pure Rust implementation</td></tr>
+<tr><td><code>ES256K</code></td><td><a href="https://docs.rs/secp256k1/"><code>secp256k1</code></a></td><td>Binding for <a href="https://github.com/bitcoin-core/secp256k1"><code>libsecp256k1</code></a></td></tr>
+</tbody></table>
+<p>Standard <code>RS*</code>, <code>PS*</code> and <code>ES*</code> algorithms are not (yet?) implemented. The reasons (besides
+laziness and non-friendly APIs in the relevant crypto backends) are as follows:</p>
+<ul>
+<li>RSA algorithms (i.e., <code>RS*</code> and <code>PS*</code>) are outdated / produce bloated signatures</li>
+<li>Elliptic curves in <code>ES*</code> algs use a maybe-something-up-my-sleeve generation procedure
+and thus may be backdoored</li>
+</ul>
+<p><code>EdDSA</code> and <code>ES256K</code> algorithms are non-standard. They both work with elliptic curves
+(Curve25519 and secp256k1; both are widely used in crypto community and believed to be
+securely generated). These algs have 128-bit security, making them an alternative
+to <code>ES256</code>.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<p>Basic JWT lifecycle:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Duration</span>, <span class="ident">Utc</span>};
+<span class="kw">use</span> <span class="ident">jwt_compact</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">alg</span>::{<span class="ident">Hs256</span>, <span class="ident">Hs256Key</span>}};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
+
+<span class="doccomment">/// Custom claims encoded in the token.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">CustomClaims</span> {
+    <span class="doccomment">/// `sub` is a standard claim which denotes claim subject:</span>
+    <span class="doccomment">/// https://tools.ietf.org/html/rfc7519#section-4.1.2</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;sub&quot;</span>)]</span>
+    <span class="ident">subject</span>: <span class="ident">String</span>,
+}
+
+<span class="comment">// Create a symmetric HMAC key, which will be used both to create and verify tokens.</span>
+<span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Hs256Key</span>::<span class="ident">from</span>(<span class="string">b&quot;super_secret_key_donut_steel&quot;</span> <span class="kw">as</span> <span class="kw-2">&amp;</span>[<span class="kw">_</span>]);
+<span class="comment">// Create a token.</span>
+<span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Header</span> {
+    <span class="ident">key_id</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;my-key&quot;</span>.<span class="ident">to_owned</span>()),
+    ..<span class="ident">Default</span>::<span class="ident">default</span>()
+};
+<span class="kw">let</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Claims</span>::<span class="ident">new</span>(<span class="ident">CustomClaims</span> { <span class="ident">subject</span>: <span class="string">&quot;alice&quot;</span>.<span class="ident">to_owned</span>() })
+    .<span class="ident">set_duration_and_issuance</span>(<span class="ident">Duration</span>::<span class="ident">days</span>(<span class="number">7</span>))
+    .<span class="ident">set_not_before</span>(<span class="ident">Utc</span>::<span class="ident">now</span>() <span class="op">-</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>));
+<span class="kw">let</span> <span class="ident">token_string</span> <span class="op">=</span> <span class="ident">Hs256</span>.<span class="ident">token</span>(<span class="ident">header</span>, <span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>)<span class="question-mark">?</span>;
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;token: {}&quot;</span>, <span class="ident">token_string</span>);
+
+<span class="comment">// Parse the token.</span>
+<span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">UntrustedToken</span>::<span class="ident">try_from</span>(<span class="ident">token_string</span>.<span class="ident">as_str</span>())<span class="question-mark">?</span>;
+<span class="comment">// Before verifying the token, we might find the key which has signed the token</span>
+<span class="comment">// using the `Header.key_id` field.</span>
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">token</span>.<span class="ident">header</span>().<span class="ident">key_id</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;my-key&quot;</span>.<span class="ident">to_owned</span>()));
+<span class="comment">// Validate the token integrity.</span>
+<span class="kw">let</span> <span class="ident">token</span>: <span class="ident">Token</span><span class="op">&lt;</span><span class="ident">CustomClaims</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Hs256</span>.<span class="ident">validate_integrity</span>(<span class="kw-2">&amp;</span><span class="ident">token</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>)<span class="question-mark">?</span>;
+<span class="comment">// Validate additional conditions.</span>
+<span class="ident">token</span>
+    .<span class="ident">claims</span>()
+    .<span class="ident">validate_expiration</span>(<span class="ident">TimeOptions</span>::<span class="ident">default</span>())<span class="question-mark">?</span>
+    .<span class="ident">validate_maturity</span>(<span class="ident">TimeOptions</span>::<span class="ident">default</span>())<span class="question-mark">?</span>;
+<span class="comment">// Now, we can extract information from the token (e.g., its subject).</span>
+<span class="kw">let</span> <span class="ident">subject</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">token</span>.<span class="ident">claims</span>().<span class="ident">custom</span>.<span class="ident">subject</span>;
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">subject</span>, <span class="string">&quot;alice&quot;</span>);</pre></div>
+<h2 id="compact-jwt" class="section-header"><a href="#compact-jwt">Compact JWT</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="doccomment">/// Custom claims encoded in the token.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">struct</span> <span class="ident">CustomClaims</span> {
+    <span class="doccomment">/// `sub` is a standard claim which denotes claim subject:</span>
+    <span class="doccomment">///     https://tools.ietf.org/html/rfc7519#section-4.1.2</span>
+    <span class="doccomment">/// The custom serializer we use allows to efficiently</span>
+    <span class="doccomment">/// encode the subject in CBOR.</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;sub&quot;</span>, <span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;HexForm&quot;</span>)]</span>
+    <span class="ident">subject</span>: [<span class="ident">u8</span>; <span class="number">32</span>],
+}
+
+<span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Hs256Key</span>::<span class="ident">from</span>(<span class="string">b&quot;super_secret_key_donut_steel&quot;</span> <span class="kw">as</span> <span class="kw-2">&amp;</span>[<span class="kw">_</span>]);
+<span class="kw">let</span> <span class="ident">claims</span> <span class="op">=</span> <span class="ident">Claims</span>::<span class="ident">new</span>(<span class="ident">CustomClaims</span> { <span class="ident">subject</span>: [<span class="number">111</span>; <span class="number">32</span>] })
+    .<span class="ident">set_duration_and_issuance</span>(<span class="ident">Duration</span>::<span class="ident">days</span>(<span class="number">7</span>));
+<span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">Hs256</span>.<span class="ident">token</span>(<span class="ident">Header</span>::<span class="ident">default</span>(), <span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>)<span class="question-mark">?</span>;
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;token: {}&quot;</span>, <span class="ident">token</span>);
+<span class="kw">let</span> <span class="ident">compact_token</span> <span class="op">=</span> <span class="ident">Hs256</span>.<span class="ident">compact_token</span>(<span class="ident">Header</span>::<span class="ident">default</span>(), <span class="kw-2">&amp;</span><span class="ident">claims</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>)<span class="question-mark">?</span>;
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;compact token: {}&quot;</span>, <span class="ident">compact_token</span>);
+<span class="comment">// The compact token should be ~40 chars shorter.</span>
+
+<span class="comment">// Parse the compact token.</span>
+<span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">UntrustedToken</span>::<span class="ident">try_from</span>(<span class="ident">compact_token</span>.<span class="ident">as_str</span>())<span class="question-mark">?</span>;
+<span class="kw">let</span> <span class="ident">token</span>: <span class="ident">Token</span><span class="op">&lt;</span><span class="ident">CustomClaims</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Hs256</span>.<span class="ident">validate_integrity</span>(<span class="kw-2">&amp;</span><span class="ident">token</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>)<span class="question-mark">?</span>;
+<span class="ident">token</span>.<span class="ident">claims</span>().<span class="ident">validate_expiration</span>(<span class="ident">TimeOptions</span>::<span class="ident">default</span>())<span class="question-mark">?</span>;
+<span class="comment">// Now, we can extract information from the token (e.g., its subject).</span>
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">token</span>.<span class="ident">claims</span>().<span class="ident">custom</span>.<span class="ident">subject</span>, [<span class="number">111</span>; <span class="number">32</span>]);</pre></div>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table><tr class='module-item'><td><a class="mod" href="alg/index.html" title='jwt_compact::alg mod'>alg</a></td><td class='docblock-short'><p>Implementations of JWT signing / verification algorithms.</p>
+</td></tr><tr class='module-item'><td><a class="mod" href="prelude/index.html" title='jwt_compact::prelude mod'>prelude</a></td><td class='docblock-short'><p>Prelude to neatly import all necessary stuff from the crate.</p>
+</td></tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table><tr class='module-item'><td><a class="struct" href="struct.Claims.html" title='jwt_compact::Claims struct'>Claims</a></td><td class='docblock-short'><p>Claims encoded in a token.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Empty.html" title='jwt_compact::Empty struct'>Empty</a></td><td class='docblock-short'><p>A structure with no fields that can be used as a type parameter to <code>Claims</code>.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Header.html" title='jwt_compact::Header struct'>Header</a></td><td class='docblock-short'><p>JWT header.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Renamed.html" title='jwt_compact::Renamed struct'>Renamed</a></td><td class='docblock-short'><p>Algorithm that uses a custom name when creating and validating tokens.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.TimeOptions.html" title='jwt_compact::TimeOptions struct'>TimeOptions</a></td><td class='docblock-short'><p>Time-related validation options.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Token.html" title='jwt_compact::Token struct'>Token</a></td><td class='docblock-short'><p>Token with validated integrity.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.UntrustedToken.html" title='jwt_compact::UntrustedToken struct'>UntrustedToken</a></td><td class='docblock-short'><p>Parsed, but unvalidated token.</p>
+</td></tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table><tr class='module-item'><td><a class="enum" href="enum.CreationError.html" title='jwt_compact::CreationError enum'>CreationError</a></td><td class='docblock-short'><p>Errors that can occur during token creation.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.ParseError.html" title='jwt_compact::ParseError enum'>ParseError</a></td><td class='docblock-short'><p>Errors that may occur during token parsing.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.ValidationError.html" title='jwt_compact::ValidationError enum'>ValidationError</a></td><td class='docblock-short'><p>Errors that can occur during token validation.</p>
+</td></tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table><tr class='module-item'><td><a class="trait" href="trait.Algorithm.html" title='jwt_compact::Algorithm trait'>Algorithm</a></td><td class='docblock-short'><p>JWT signing algorithm.</p>
+</td></tr><tr class='module-item'><td><a class="trait" href="trait.AlgorithmExt.html" title='jwt_compact::AlgorithmExt trait'>AlgorithmExt</a></td><td class='docblock-short'><p>Automatically implemented extensions of the <code>Algorithm</code> trait.</p>
+</td></tr><tr class='module-item'><td><a class="trait" href="trait.AlgorithmSignature.html" title='jwt_compact::AlgorithmSignature trait'>AlgorithmSignature</a></td><td class='docblock-short'><p>Signature for a certain JWT signing <code>Algorithm</code>.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../";window.currentCrate = "jwt_compact";</script><script src="../aliases.js"></script><script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>
