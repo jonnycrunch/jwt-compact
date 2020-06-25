@@ -70,7 +70,7 @@ impl RsaVerifyingKey {
         let n = BigUint::from_bytes_be(n);
         let e = BigUint::from_bytes_be(e);
         match RSAPublicKey::new(n, e) {
-            Err(e) => return Err(RsaError::InvalidKey(e).into()),
+            Err(e) => Err(RsaError::InvalidKey(e).into()),
             Ok(key) => Ok(RsaVerifyingKey(key)),
         }
     }
@@ -92,7 +92,7 @@ impl RsaSigningKey {
         match RSAPrivateKey::from_pkcs8(&der) {
             Err(e) => Err(RsaError::InvalidKey(e).into()),
             Ok(key) => {
-                key.validate().map_err(|e| RsaError::InvalidKey(e))?;
+                key.validate().map_err(RsaError::InvalidKey)?;
                 Ok(RsaSigningKey(key))
             }
         }
