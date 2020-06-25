@@ -1,6 +1,6 @@
 # Compact JWT implementation in Rust
 
-**Documentation:** [![Docs.rs](https://docs.rs/jwt-compact-preview/badge.svg)](https://docs.rs/jwt-compact-preview/)
+[![Docs.rs](https://docs.rs/jwt-compact-preview/badge.svg)](https://docs.rs/jwt-compact-preview/)
 
 Minimalistic [JSON web token (JWT)][JWT] implementation with focus on type safety
 and secure cryptographic primitives.
