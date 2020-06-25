@@ -5,6 +5,8 @@
 Minimalistic [JSON web token (JWT)][JWT] implementation with focus on type safety
 and secure cryptographic primitives.
 
+This is a fork of [`jwt-compact`](https://docs.rs/jwt-compact/0.2.0/jwt_compact/) with support for WebAssembly and RSA.
+
 ## Usage
 
 See the crate docs for the examples of usage.
