@@ -5,7 +5,12 @@
 Minimalistic [JSON web token (JWT)][JWT] implementation with focus on type safety
 and secure cryptographic primitives.
 
-This is a fork of [`jwt-compact`](https://docs.rs/jwt-compact/0.2.0/jwt_compact/) with support for WebAssembly and RSA.
+This is a fork of [`jwt-compact`](https://docs.rs/jwt-compact/) with several additions:
+
+- RSA support (`RS256`, `RS384`, `RS512`, `PS256`, `PS384`, `PS512`)
+- `ed25519-compact` backend for Ed25519 signatures
+- Backend-agnostic helpers to import and generate RSA and ECDSA keys
+- Can be compiled to WebAssembly; compatible with Fastly Compute@Edge.
 
 ## Usage
 
