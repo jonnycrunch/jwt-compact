@@ -1,6 +1,6 @@
 [package]
 name = "jwt-compact-preview"
-version = "0.3.2"
+version = "0.3.3"
 authors = [
   "Alex Ostrovski <ostrovski.alex@gmail.com>",
   "Akhil Velagapudi <akhilvelagapudi@gmail.com>",
@@ -22,7 +22,7 @@ features = ["secp256k1"]
 # Public dependencies (present in the public API).
 anyhow = "1.0.28"
 base64 = "0.12.1"
-chrono = "0.4.11"
+chrono-wasi = "0.4.10"
 rand = "0.7.3"
 rand_core = "0.5.1"
 serde = { version = "1.0", features = ["derive"] }
